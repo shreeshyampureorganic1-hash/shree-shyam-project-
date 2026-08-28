@@ -1,0 +1,252 @@
+{
+  "categories": [
+    {
+      "id": "cat_all",
+      "name": "All Products",
+      "slug": "all",
+      "icon": "Sparkles",
+      "image": "/logo.jpg",
+      "description": "Explore the full organic range"
+    },
+    {
+      "id": "cat_pickles",
+      "name": "Pickles (अचार)",
+      "slug": "pickles",
+      "icon": "Jar",
+      "image": "/images/categories/pickles-logo.jpg",
+      "description": "Taste Jo Dil Se Judta Hai • 100% Pure & Natural"
+    },
+    {
+      "id": "cat_powders",
+      "name": "Morning Powders",
+      "slug": "morning-powders",
+      "icon": "Leaf",
+      "image": "/images/categories/moringa-powders-logo.jpg",
+      "description": "Nutrient Rich • Boosts Energy • Immunity Support"
+    },
+    {
+      "id": "cat_soaps",
+      "name": "Natural Soaps",
+      "slug": "natural-soaps",
+      "icon": "Soap",
+      "image": "/images/categories/soaps-logo.jpg",
+      "description": "Gentle Care From Nature • Pure, Safe, Natural"
+    },
+    {
+      "id": "cat_ghee",
+      "name": "A2 Ghee & Cold Press Oils",
+      "slug": "ghee-oils",
+      "icon": "Droplets",
+      "image": "/images/categories/ghee-oils-logo.jpg",
+      "description": "Nature's Goodness • Your Wellness • Cold Pressed"
+    },
+    {
+      "id": "cat_wellness",
+      "name": "Handmade Wellness",
+      "slug": "handmade-wellness",
+      "icon": "Heart",
+      "image": "/images/categories/wellness-logo.jpg",
+      "description": "Traditional Ayurvedic Care • Handcrafted with Devotion"
+    },
+    {
+      "id": "cat_1787837284502",
+      "name": "oil",
+      "slug": "oil",
+      "description": "100 pure",
+      "image": "https://res.cloudinary.com/alee6ahr/image/upload/v1787837274/shree-shyam/categories/q9bjpfk2vuqcnqze6clm.jpg"
+    }
+  ],
+  "products": [],
+  "videoBanner": {
+    "enabled": true,
+    "videoUrl": "https://res.cloudinary.com/alee6ahr/video/upload/v1787742264/shree-shyam/banners/videos/waqegmseatekfovb6w8d.mp4",
+    "fallbackImageUrl": "https://res.cloudinary.com/alee6ahr/image/upload/v1787742270/shree-shyam/banners/images/rhezanajfxcozwfjuxdb.jpg",
+    "title": "100% Pure Organic Products",
+    "subtitle": "Traditional Taste • Natural Wellness • Handmade Care",
+    "badgeText": "Pure • Chemical-Free • Farm Direct",
+    "buttonText": "Shop Pure Products",
+    "buttonLink": "#products-section",
+    "secondaryButtonText": "Order on WhatsApp",
+    "secondaryButtonLink": "#whatsapp",
+    "videoPublicId": "shree-shyam/banners/videos/waqegmseatekfovb6w8d",
+    "format": "mp4",
+    "duration": 8,
+    "updatedAt": "2026-08-26T11:04:33.335Z"
+  },
+  "settings": {
+    "siteName": "Shree Shyam Pure Organic",
+    "tagline": "Traditional Taste • Natural Wellness • Handmade Care",
+    "logoUrl": "/logo.jpg",
+    "email": "shreeshyampure.organic1@gmail.com",
+    "phone": "+91 98765 43210",
+    "whatsappNumber": "+919501341973",
+    "address": "Mirthal, Near Pathankot, Punjab, India",
+    "mapsUrl": "https://maps.app.goo.gl/REesz8dR2esjDu1X8",
+    "announcementText": "✨ 100% Pure Organic & Chemical Free • Dispatching from Mirthal, Punjab Across India ✨",
+    "facebookUrl": "https://facebook.com",
+    "instagramUrl": "https://instagram.com",
+    "youtubeUrl": "https://youtube.com",
+    "footerDescription": "Dedicated to resurrecting ancient Ayurvedic principles and traditional culinary wisdom. Pure, handmade, and free from all chemicals.",
+    "freeDeliveryThreshold": 999,
+    "currencySymbol": "₹",
+    "updatedAt": "2026-08-27T13:18:13.131Z"
+  },
+  "activityLogs": [
+    {
+      "id": "log_1787911180624",
+      "action": "Product Deleted: mengo",
+      "details": {
+        "id": "prod_1787837310214"
+      },
+      "timestamp": "2026-08-28T09:59:40.624Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787909349648",
+      "action": "Product Deleted: fvscscscsc",
+      "details": {
+        "id": "prod_1787742163862"
+      },
+      "timestamp": "2026-08-28T09:29:09.648Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787837377810",
+      "action": "Product Updated: mengo",
+      "details": {
+        "name": "mengo",
+        "price": 200
+      },
+      "timestamp": "2026-08-27T13:29:37.810Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787837373604",
+      "action": "Product Added: mengo",
+      "details": {
+        "name": "mengo",
+        "price": 200
+      },
+      "timestamp": "2026-08-27T13:29:33.604Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787837284516",
+      "action": "Categories Updated",
+      "details": {
+        "count": 7
+      },
+      "timestamp": "2026-08-27T13:28:04.516Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836693131",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "+919501341973"
+      },
+      "timestamp": "2026-08-27T13:18:13.131Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836692910",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "+919501341973"
+      },
+      "timestamp": "2026-08-27T13:18:12.910Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836691973",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "+919501341973"
+      },
+      "timestamp": "2026-08-27T13:18:11.973Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836624303",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "9501341973"
+      },
+      "timestamp": "2026-08-27T13:17:04.304Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836624179",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "9501341973"
+      },
+      "timestamp": "2026-08-27T13:17:04.179Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836623085",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "9501341973"
+      },
+      "timestamp": "2026-08-27T13:17:03.085Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836620792",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "9501341973"
+      },
+      "timestamp": "2026-08-27T13:17:00.792Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787836619339",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "9501341973"
+      },
+      "timestamp": "2026-08-27T13:16:59.339Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787742273335",
+      "action": "Hero Video Banner Updated",
+      "details": {
+        "title": "100% Pure Organic Products",
+        "videoUrl": "https://res.cloudinary.com/alee6ahr/video/upload/v1787742264/shree-shyam/banners/videos/waqegmseatekfovb6w8d.mp4"
+      },
+      "timestamp": "2026-08-26T11:04:33.335Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1787742227519",
+      "action": "Product Added: fvscscscsc",
+      "details": {
+        "name": "fvscscscsc",
+        "price": 222
+      },
+      "timestamp": "2026-08-26T11:03:47.519Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_init",
+      "action": "Database Initialized Permanently",
+      "details": {
+        "storage": "Disk JSON + Cloudinary CDN"
+      },
+      "timestamp": "2026-08-24T16:19:40.621Z",
+      "user": "System"
+    }
+  ]
+}
