@@ -56,7 +56,39 @@
       "image": "https://res.cloudinary.com/alee6ahr/image/upload/v1787837274/shree-shyam/categories/q9bjpfk2vuqcnqze6clm.jpg"
     }
   ],
-  "products": [],
+  "products": [
+    {
+      "id": "prod_1788092562920",
+      "name": "mengo",
+      "category": "Morning Powders",
+      "categorySlug": "morning-powders",
+      "price": 230,
+      "originalPrice": 430,
+      "weight": "250",
+      "weightOptions": [
+        "250g",
+        "500g",
+        "1kg"
+      ],
+      "inStock": true,
+      "badge": "100% Organic",
+      "tagline": "",
+      "description": "",
+      "ingredients": [
+        "Organic Ingredients",
+        "Cold-Pressed Oil",
+        "Rock Salt"
+      ],
+      "benefits": [
+        "100% Chemical-free",
+        "Aids digestion and vitality"
+      ],
+      "imageUrls": [
+        "https://res.cloudinary.com/alee6ahr/image/upload/v1788092607/shree-shyam/products/morning-powders/mengo/uyievb2tmycnt8ednptz.jpg"
+      ],
+      "updatedAt": "2026-08-30T12:23:31.557Z"
+    }
+  ],
   "videoBanner": {
     "enabled": true,
     "videoUrl": "https://res.cloudinary.com/alee6ahr/video/upload/v1787742264/shree-shyam/banners/videos/waqegmseatekfovb6w8d.mp4",
@@ -78,8 +110,8 @@
     "tagline": "Traditional Taste • Natural Wellness • Handmade Care",
     "logoUrl": "/logo.jpg",
     "email": "shreeshyampure.organic1@gmail.com",
-    "phone": "+91 98765 43210",
-    "whatsappNumber": "+919501341973",
+    "phone": "+91 9041103099",
+    "whatsappNumber": "+91 9041103099",
     "address": "Mirthal, Near Pathankot, Punjab, India",
     "mapsUrl": "https://maps.app.goo.gl/REesz8dR2esjDu1X8",
     "announcementText": "✨ 100% Pure Organic & Chemical Free • Dispatching from Mirthal, Punjab Across India ✨",
@@ -89,9 +121,39 @@
     "footerDescription": "Dedicated to resurrecting ancient Ayurvedic principles and traditional culinary wisdom. Pure, handmade, and free from all chemicals.",
     "freeDeliveryThreshold": 999,
     "currencySymbol": "₹",
-    "updatedAt": "2026-08-27T13:18:13.131Z"
+    "updatedAt": "2026-08-30T12:26:41.511Z"
   },
   "activityLogs": [
+    {
+      "id": "log_1788092801511",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "+91 9041103099"
+      },
+      "timestamp": "2026-08-30T12:26:41.511Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1788092798756",
+      "action": "Website Settings & Contacts Updated",
+      "details": {
+        "siteName": "Shree Shyam Pure Organic",
+        "whatsapp": "+91 9041103099"
+      },
+      "timestamp": "2026-08-30T12:26:38.756Z",
+      "user": "Super Admin"
+    },
+    {
+      "id": "log_1788092611557",
+      "action": "Product Added: mengo",
+      "details": {
+        "name": "mengo",
+        "price": 230
+      },
+      "timestamp": "2026-08-30T12:23:31.557Z",
+      "user": "Super Admin"
+    },
     {
       "id": "log_1787911180624",
       "action": "Product Deleted: mengo",

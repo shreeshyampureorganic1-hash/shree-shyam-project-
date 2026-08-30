@@ -48,7 +48,7 @@ export default function DashboardOverview({ setActiveTab }) {
     },
     {
       title: 'WhatsApp Orders Channel',
-      value: settings.whatsappNumber || '+91 98765 43210',
+      value: settings.whatsappNumber || '+91 9041103099',
       subtitle: '1-Click Direct Inquiries Active',
       icon: <MessageCircle className="w-6 h-6 text-emerald-400" />,
       action: () => setActiveTab('settings'),

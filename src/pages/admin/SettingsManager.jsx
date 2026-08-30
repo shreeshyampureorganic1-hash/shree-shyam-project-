@@ -135,7 +135,7 @@ export default function SettingsManager() {
           </h3>
 
           <div>
-            <label className="block text-xs font-bold uppercase text-gold-300 mb-1.5 flex items-center">
+            <label className="text-xs font-bold uppercase text-gold-300 mb-1.5 flex items-center">
               <MapPin className="w-3.5 h-3.5 mr-1 text-gold-400" />
               Store & Farm Address
             </label>
@@ -149,7 +149,7 @@ export default function SettingsManager() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase text-gold-300 mb-1.5 flex items-center">
+            <label className="text-xs font-bold uppercase text-gold-300 mb-1.5 flex items-center">
               <ExternalLink className="w-3.5 h-3.5 mr-1 text-emerald-400" />
               Google Maps Location Link
             </label>
@@ -158,12 +158,12 @@ export default function SettingsManager() {
               value={formData.mapsUrl || ''}
               onChange={(e) => setFormData({ ...formData, mapsUrl: e.target.value })}
               placeholder="https://maps.app.goo.gl/REesz8dR2esjDu1X8"
-              className="w-full bg-forest-950 border border-forest-700 text-ivory-50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold-500 font-mono text-xs text-gold-300"
+            className="w-full bg-forest-950 border border-forest-700 text-ivory-50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold-500 font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase text-gold-300 mb-1.5 flex items-center">
+            <label className="text-xs font-bold uppercase text-gold-300 mb-1.5 flex items-center">
               <MessageCircle className="w-3.5 h-3.5 mr-1 text-emerald-400" />
               WhatsApp Direct Order Line
             </label>
@@ -171,14 +171,14 @@ export default function SettingsManager() {
               type="text"
               value={formData.whatsappNumber || ''}
               onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
-              placeholder="+91 98765 43210"
+              placeholder="+91 9041103099"
               className="w-full bg-forest-950 border border-forest-700 text-ivory-50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold-500 font-mono"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase text-gold-300 mb-1.5">
+              <label className="text-xs font-bold uppercase text-gold-300 mb-1.5">
                 Support Phone
               </label>
               <input
