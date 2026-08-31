@@ -74,21 +74,25 @@ export const FirestoreService = {
   // --- PRODUCTS ---
 async getProducts() {
   try {
-    const res = await fetch(`${API_BASE}/api/store/data`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.products && data.products.length > 0) {
-        localStorage.setItem(
-          "shree_products_cache",
-          JSON.stringify(data.products)
-        );
-        return data.products;
-      }
-    }
-  } catch (e) {}
+    const productsSnap = await getDocs(collection(db, "products"));
 
-  const cached = localStorage.getItem("shree_products_cache");
-  return cached ? JSON.parse(cached) : [];
+    const products = productsSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    localStorage.setItem(
+      "shree_products_cache",
+      JSON.stringify(products)
+    );
+
+    return products;
+  } catch (e) {
+    console.error("Firestore products error:", e);
+
+    const cached = localStorage.getItem("shree_products_cache");
+    return cached ? JSON.parse(cached) : [];
+  }
 },
 
 // --- GET CATEGORIES ---
