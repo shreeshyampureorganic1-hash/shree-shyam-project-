@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { Search, ShoppingBag, Heart, Menu, X, PhoneCall } from 'lucide-react';
+import defaultLogo from '../../assets/logo.jpg';
 
 export default function Navbar() {
   const {
@@ -33,6 +34,8 @@ export default function Navbar() {
     }
   };
 
+  const logoSrc = settings?.logoUrl || defaultLogo;
+
   return (
     <nav
       className={`sticky top-0 z-40 transition-all duration-300 ${
@@ -59,13 +62,13 @@ export default function Navbar() {
             href="/"
             className="flex items-center space-x-3 group text-decoration-none"
           >
-            <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-gold-500/80 shadow-luxury-gold flex-shrink-0 bg-stone-900 p-0.5">
+            <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-gold-500 shadow-luxury-gold flex-shrink-0 bg-stone-950 p-0.5">
               <img
-                src={settings.logoUrl || '/logo.jpg'}
-                alt={settings.siteName || 'Shree Shyam Pure Organic'}
-                className="w-full h-full object-contain rounded-full transform group-hover:scale-105 transition-transform duration-300"
+                src={logoSrc}
+                alt={settings?.siteName || 'Shree Shyam Pure Organic'}
+                className="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = '/logo.jpg';
+                  e.currentTarget.src = defaultLogo;
                 }}
               />
             </div>
@@ -83,52 +86,39 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-sm font-medium text-stone-200">
             <a
               href="/"
-              className="hover:text-gold-400 transition-colors py-1 relative group font-semibold text-gold-300"
+              className="text-gold-300 hover:text-gold-200 transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gold-400 font-serif"
             >
               Home
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gold-400 scale-x-100 transition-transform"></span>
             </a>
 
-            <button
-              onClick={() => handleCategoryNav('all')}
-              className="hover:text-gold-400 transition-colors py-1"
-            >
-              All Products
-            </button>
+            {categories.slice(0, 4).map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryNav(cat.slug)}
+                className="text-stone-300 hover:text-gold-300 transition-colors text-sm font-normal py-1"
+              >
+                {cat.name}
+              </button>
+            ))}
 
-            <button
-              onClick={() => handleCategoryNav('pickles')}
-              className="hover:text-gold-400 transition-colors py-1"
+            <a
+              href="#why-us"
+              className="text-stone-300 hover:text-gold-300 transition-colors text-sm font-normal"
             >
-              Pickles (अचार)
-            </button>
-
-            <button
-              onClick={() => handleCategoryNav('morning-powders')}
-              className="hover:text-gold-400 transition-colors py-1"
-            >
-              Morning Powders
-            </button>
-
-            <button
-              onClick={() => handleCategoryNav('natural-soaps')}
-              className="hover:text-gold-400 transition-colors py-1"
-            >
-              Natural Soaps
-            </button>
-
-            <a href="#why-us" className="hover:text-gold-400 transition-colors py-1">
               Why Us
             </a>
 
-            <a href="#contact" className="hover:text-gold-400 transition-colors py-1">
+            <a
+              href="#contact"
+              className="text-stone-300 hover:text-gold-300 transition-colors text-sm font-normal"
+            >
               Contact
             </a>
           </div>
 
-          {/* Right Action Icons (Search, Wishlist, Cart) - Hidden Admin link! */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            {/* Search Trigger */}
+          {/* Action Icons */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Search Button */}
             <button
               onClick={() => setIsSearchOpen(true)}
               className="p-2 text-stone-300 hover:text-gold-300 transition-colors rounded-full hover:bg-forest-800"
@@ -137,45 +127,38 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Wishlist Indicator */}
-            <button
-              onClick={() => {
-                const el = document.getElementById('products-section');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
+            {/* Wishlist Icon */}
+            <a
+              href="#wishlist"
               className="p-2 text-stone-300 hover:text-gold-300 transition-colors rounded-full hover:bg-forest-800 relative hidden sm:block"
-              aria-label="Wishlist"
+              aria-label="View Wishlist"
             >
               <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {wishlist.length}
                 </span>
               )}
-            </button>
+            </a>
 
-            {/* Cart Drawer Trigger */}
+            {/* Cart Trigger Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center space-x-2 bg-gradient-to-r from-gold-600 to-gold-500 text-forest-950 px-3.5 py-2 rounded-full font-bold text-xs sm:text-sm hover:from-gold-500 hover:to-gold-400 transition-all shadow-luxury-gold transform active:scale-95"
+              className="flex items-center space-x-2 bg-gold-500 hover:bg-gold-400 text-forest-950 px-3.5 py-2 rounded-full font-bold text-xs sm:text-sm shadow-luxury-gold transform active:scale-95 transition-all"
               aria-label="Shopping Cart"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span className="hidden xs:inline">Bag</span>
-              <span className="bg-forest-900 text-gold-300 px-1.5 py-0.5 rounded-full text-xs min-w-[20px] text-center font-black">
-                {cartCount}
-              </span>
+              <span className="font-sans font-bold">{cartCount}</span>
             </button>
 
-            {/* Admin Access Small Man Emoji / Icon Button */}
+            {/* Secure Admin Portal Shortcut */}
             <a
               href="/secure-admin"
-              className="w-9 h-9 rounded-full bg-forest-800 hover:bg-forest-700 text-gold-300 hover:text-gold-200 border border-gold-500/40 hover:border-gold-400 flex items-center justify-center text-sm shadow-md transition-all transform hover:scale-105 active:scale-95 group relative"
-              title="Admin Portal - Manage Products & Settings"
+              className="p-2 text-gold-300 hover:text-white transition-colors rounded-full hover:bg-forest-800 flex items-center justify-center"
+              title="Secure Admin Gateway"
               aria-label="Admin Portal"
             >
-              <span className="text-base leading-none select-none">👤</span>
-              <span className="sr-only">Admin Login</span>
+              <span className="text-base leading-none">👤</span>
             </a>
           </div>
         </div>

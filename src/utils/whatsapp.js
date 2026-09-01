@@ -2,7 +2,7 @@
  * WhatsApp Direct 1-Click Order Link Generator
  */
 export function generateWhatsAppOrderUrl(product, quantity = 1, selectedWeight = null, customNote = '') {
-  const whatsappNumber = localStorage.getItem('shree_whatsapp_number') || '919876543210';
+  const whatsappNumber = localStorage.getItem('shree_whatsapp_number') || '919041103099';
   const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
 
   const weight = selectedWeight || product.weight || 'Standard Pack';
@@ -28,7 +28,7 @@ Namaste! I would like to place an order for this pure organic item. Please confi
  * General WhatsApp Contact Link Generator
  */
 export function generateWhatsAppGeneralContactUrl(customMessage = '') {
-  const whatsappNumber = localStorage.getItem('shree_whatsapp_number') || '919876543210';
+  const whatsappNumber = localStorage.getItem('shree_whatsapp_number') || '919041103099';
   const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
 
   const defaultMsg = customMessage || 'Namaste Shree Shyam Pure Organic team! I have a question regarding your natural organic products.';

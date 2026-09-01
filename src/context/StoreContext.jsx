@@ -1,43 +1,29 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FirestoreService } from '../firebase/firestoreService';
-
+import { initialProducts, initialCategories, initialVideoBanner, initialSettings } from '../utils/sampleData';
 
 const StoreContext = createContext();
 
 export function StoreProvider({ children }) {
- const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => {
+    const cached = localStorage.getItem('shree_products_cache');
+    return cached ? JSON.parse(cached) : initialProducts;
+  });
 
-  const [categories, setCategoriesState] = useState([]);
+  const [categories, setCategoriesState] = useState(() => {
+    const cached = localStorage.getItem('shree_categories_cache');
+    return cached ? JSON.parse(cached) : initialCategories;
+  });
 
-  const [videoBanner, setVideoBanner] = useState({});
+  const [videoBanner, setVideoBanner] = useState(() => {
+    const cached = localStorage.getItem('shree_video_banner_cache');
+    return cached ? JSON.parse(cached) : initialVideoBanner;
+  });
 
-  const [settings, setSettings] = useState({});
-  useEffect(() => {
-  async function loadStoreData() {
-    try {
-      const [
-        productsData,
-        categoriesData,
-        bannerData,
-        settingsData
-      ] = await Promise.all([
-        FirestoreService.getProducts(),
-        FirestoreService.getCategories(),
-        FirestoreService.getVideoBanner(),
-        FirestoreService.getSettings()
-      ]);
-
-      setProducts(productsData || []);
-      setCategoriesState(categoriesData || []);
-      setVideoBanner(bannerData || {});
-      setSettings(settingsData || {});
-    } catch (error) {
-      console.error("Failed to load store data:", error);
-    }
-  }
-
-  loadStoreData();
-}, []);
+  const [settings, setSettings] = useState(() => {
+    const cached = localStorage.getItem('shree_settings_cache');
+    return cached ? JSON.parse(cached) : initialSettings;
+  });
 
   const [cart, setCart] = useState(() => {
     try {
@@ -65,83 +51,37 @@ export function StoreProvider({ children }) {
   const [activeModalProduct, setActiveModalProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
- useEffect(() => {
-  async function loadStoreData() {
-    try {
-      const [
-        productsData,
-        categoriesData,
-        bannerData,
-        settingsData
-      ] = await Promise.all([
-        FirestoreService.getProducts(),
-        FirestoreService.getCategories(),
-        FirestoreService.getVideoBanner(),
-        FirestoreService.getSettings()
-      ]);
-
-      setProducts(productsData || []);
-      setCategoriesState(categoriesData || []);
-      setVideoBanner(bannerData || {});
-      setSettings(settingsData || {});
-    } catch (error) {
-      console.error("Failed to load store data:", error);
-
-      setProducts(
-        JSON.parse(
-          localStorage.getItem("shree_products_cache") || "[]"
-        )
-      );
-
-      setCategoriesState(
-        JSON.parse(
-          localStorage.getItem("shree_categories_cache") || "[]"
-        )
-      );
-
-      setVideoBanner(
-        JSON.parse(
-          localStorage.getItem("shree_video_banner_cache") || "{}"
-        )
-      );
-
-      setSettings(
-        JSON.parse(
-          localStorage.getItem("shree_settings_cache") || "{}"
-        )
-      );
-    }
-  }
-
-  loadStoreData();
-}, []); // Sync initial data permanently from backend disk database and Firestore
+  // Sync data from Firestore on mount
   useEffect(() => {
-  localStorage.setItem(
-    'shree_products_cache',
-    JSON.stringify(products)
-  );
-}, [products]);
+    let isMounted = true;
+    async function loadFirestoreData() {
+      try {
+        const [dbProducts, dbCategories, dbBanner, dbSettings] = await Promise.all([
+          FirestoreService.getProducts(),
+          FirestoreService.getCategories(),
+          FirestoreService.getVideoBanner(),
+          FirestoreService.getSettings()
+        ]);
 
-useEffect(() => {
-  localStorage.setItem(
-    'shree_categories_cache',
-    JSON.stringify(categories)
-  );
-}, [categories]);
+        if (isMounted) {
+          if (Array.isArray(dbProducts)) setProducts(dbProducts);
+          if (Array.isArray(dbCategories)) setCategoriesState(dbCategories);
+          if (dbBanner && typeof dbBanner === 'object') setVideoBanner(dbBanner);
+          if (dbSettings && typeof dbSettings === 'object') {
+            setSettings(dbSettings);
+            if (dbSettings.whatsappNumber) {
+              localStorage.setItem('shree_whatsapp_number', dbSettings.whatsappNumber);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching Firestore store data:', err);
+      }
+    }
 
-useEffect(() => {
-  localStorage.setItem(
-    'shree_video_banner_cache',
-    JSON.stringify(videoBanner)
-  );
-}, [videoBanner]);
-
-useEffect(() => {
-  localStorage.setItem(
-    'shree_settings_cache',
-    JSON.stringify(settings)
-  );
-}, [settings]);
+    loadFirestoreData();
+    return () => { isMounted = false; };
+  }, []);
 
   // Save cart to local storage
   useEffect(() => {
@@ -214,7 +154,7 @@ useEffect(() => {
     });
   };
 
-  // --- ADMIN PRODUCT ACTIONS (PERMANENT) ---
+  // --- ADMIN PRODUCT ACTIONS (PERMANENT FIRESTORE) ---
   const saveProduct = async (productData) => {
     const saved = await FirestoreService.saveProduct(productData);
     setProducts((prev) => {
@@ -227,7 +167,7 @@ useEffect(() => {
       return [saved, ...prev];
     });
     await FirestoreService.logActivity(
-      productData.id ? `Product Edited: ${productData.name}` : `Product Added: ${productData.name}`,
+      productData.id ? `Product Updated: ${productData.name}` : `Product Added: ${productData.name}`,
       { name: productData.name, price: productData.price }
     );
     showToast(`Changes Saved Successfully`);
@@ -241,7 +181,7 @@ useEffect(() => {
     showToast(`Product deleted successfully.`);
   };
 
-  // --- ADMIN VIDEO BANNER ACTIONS (PERMANENT) ---
+  // --- ADMIN VIDEO BANNER ACTIONS (PERMANENT FIRESTORE) ---
   const updateVideoBanner = async (bannerData) => {
     const updated = await FirestoreService.saveVideoBanner(bannerData);
     setVideoBanner(updated);
@@ -250,7 +190,7 @@ useEffect(() => {
     return updated;
   };
 
-  // --- ADMIN SETTINGS ACTIONS (PERMANENT) ---
+  // --- ADMIN SETTINGS ACTIONS (PERMANENT FIRESTORE) ---
   const updateSettings = async (settingsData) => {
     const updated = await FirestoreService.saveSettings(settingsData);
     setSettings(updated);
@@ -262,17 +202,38 @@ useEffect(() => {
     return updated;
   };
 
-  // --- ADMIN CATEGORIES ACTIONS (PERMANENT) ---
+  // --- ADMIN CATEGORIES ACTIONS (PERMANENT FIRESTORE) ---
   const setCategories = async (categoriesList) => {
     setCategoriesState(categoriesList);
     await FirestoreService.saveCategories(categoriesList);
     showToast('Changes Saved Successfully');
   };
 
+  const saveCategory = async (categoryData) => {
+    const saved = await FirestoreService.saveCategory(categoryData);
+    setCategoriesState((prev) => {
+      const idx = prev.findIndex((c) => c.id === saved.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = saved;
+        return copy;
+      }
+      return [...prev, saved];
+    });
+    showToast('Changes Saved Successfully');
+    return saved;
+  };
+
+  const deleteCategory = async (id, name = 'Category') => {
+    await FirestoreService.deleteCategory(id);
+    setCategoriesState((prev) => prev.filter((c) => c.id !== id));
+    showToast(`Category removed.`);
+  };
+
   // --- ADMIN BACKUP & RESTORE ACTIONS ---
   const exportBackupJSON = () => {
     const backup = {
-      version: '1.0',
+      version: '2.0',
       brand: 'Shree Shyam Pure Organic',
       timestamp: new Date().toISOString(),
       products,
@@ -296,25 +257,24 @@ useEffect(() => {
       const data = JSON.parse(jsonString);
       if (data.products && Array.isArray(data.products)) {
         setProducts(data.products);
+        for (const prod of data.products) {
+          await FirestoreService.saveProduct(prod);
+        }
       }
       if (data.categories && Array.isArray(data.categories)) {
         setCategoriesState(data.categories);
+        await FirestoreService.saveCategories(data.categories);
       }
       if (data.videoBanner) {
         setVideoBanner(data.videoBanner);
+        await FirestoreService.saveVideoBanner(data.videoBanner);
       }
       if (data.settings) {
         setSettings(data.settings);
+        await FirestoreService.saveSettings(data.settings);
       }
 
-      // Save to server permanent database
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/store/restore`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      await FirestoreService.logActivity('Database Restored From Backup');
+      await FirestoreService.logActivity('Database Restored From Backup File');
       showToast('Changes Saved Successfully');
       return true;
     } catch (e) {
@@ -359,6 +319,8 @@ useEffect(() => {
         updateVideoBanner,
         updateSettings,
         setCategories,
+        saveCategory,
+        deleteCategory,
         exportBackupJSON,
         importBackupJSON,
         cartCount,

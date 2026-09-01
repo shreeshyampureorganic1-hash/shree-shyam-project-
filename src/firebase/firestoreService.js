@@ -1,345 +1,348 @@
 import { 
   collection, 
   getDocs, 
+  getDoc,
   doc, 
   setDoc, 
   deleteDoc, 
-  addDoc 
+  addDoc,
+  query,
+  orderBy,
+  limit
 } from "firebase/firestore";
 import { db } from "./config";
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { 
+  initialProducts, 
+  initialCategories, 
+  initialVideoBanner, 
+  initialSettings 
+} from "../utils/sampleData";
 
 /**
- * Enterprise Permanent Data Service (Server Disk Database + Firebase Firestore + Local Storage)
+ * Enterprise Production Firestore Service
+ * Pure cloud-first database architecture with Firestore as single source of truth.
+ * Zero localhost dependencies. Compatible with Vercel and local environments.
  */
 export const FirestoreService = {
-  // --- FETCH ALL STORE DATA ---
-  async getStoreData() {
+  // --- INITIAL ONE-TIME SETUP CHECK ---
+  async initializeDefaultsIfEmpty() {
     try {
-      const response = await fetch(`${API_BASE}/api/store/data`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          if (data.products?.length) localStorage.setItem("shree_products_cache", JSON.stringify(data.products));
-          if (data.categories?.length) localStorage.setItem("shree_categories_cache", JSON.stringify(data.categories));
-          if (data.videoBanner) localStorage.setItem("shree_video_banner_cache", JSON.stringify(data.videoBanner));
-          if (data.settings) localStorage.setItem("shree_settings_cache", JSON.stringify(data.settings));
-          return data;
+      const prodSnap = await getDocs(collection(db, "products"));
+      if (prodSnap.empty) {
+        console.log("🌱 First-time setup: Seeding initial products to Firestore...");
+        for (const prod of initialProducts) {
+          await setDoc(doc(db, "products", prod.id), {
+            ...prod,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
         }
       }
-    } catch (e) {
-      console.warn("Server API not reachable directly, trying Firestore & local cache:", e);
-    }
 
-    // Fallback to Firestore
-    try {
-      const productsSnap = await getDocs(collection(db, "products"));
-      const products = !productsSnap.empty ? productsSnap.docs.map(d => ({ id: d.id, ...d.data() })) : null;
-      
-      const settingsSnap = await getDocs(collection(db, "website_settings"));
-      const settings = !settingsSnap.empty ? settingsSnap.docs[0].data() : null;
-
-      const bannerSnap = await getDocs(collection(db, "video_banners"));
-      const videoBanner = !bannerSnap.empty ? bannerSnap.docs[0].data() : null;
-
-      if (products || settings || videoBanner) {
-        return { products, settings, videoBanner };
+      const catSnap = await getDocs(collection(db, "categories"));
+      if (catSnap.empty) {
+        console.log("🌱 First-time setup: Seeding initial categories to Firestore...");
+        for (const cat of initialCategories) {
+          await setDoc(doc(db, "categories", cat.id), {
+            ...cat,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        }
       }
-    } catch (e) {
-      console.warn("Firestore fallback check:", e);
-    }
 
-    return null;
+      const bannerDoc = await getDoc(doc(db, "video_banners", "hero_banner"));
+      if (!bannerDoc.exists()) {
+        console.log("🌱 First-time setup: Seeding initial video banner to Firestore...");
+        await setDoc(doc(db, "video_banners", "hero_banner"), {
+          ...initialVideoBanner,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      }
+
+      const settingsDoc = await getDoc(doc(db, "website_settings", "general_settings"));
+      if (!settingsDoc.exists()) {
+        console.log("🌱 First-time setup: Seeding initial settings to Firestore...");
+        await setDoc(doc(db, "website_settings", "general_settings"), {
+          ...initialSettings,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      }
+    } catch (err) {
+      console.warn("Firestore default initialization note:", err);
+    }
   },
 
   // --- PRODUCTS ---
   async getProducts() {
     try {
-      const res = await fetch(`${API_BASE}/api/store/data`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.products && data.products.length > 0) {
-          localStorage.setItem("shree_products_cache", JSON.stringify(data.products));
-          return data.products;
-        }
+      const snap = await getDocs(collection(db, "products"));
+      if (!snap.empty) {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        localStorage.setItem("shree_products_cache", JSON.stringify(list));
+        return list;
+      }
+
+      // If completely empty on cloud, seed once
+      await this.initializeDefaultsIfEmpty();
+      const freshSnap = await getDocs(collection(db, "products"));
+      if (!freshSnap.empty) {
+        const freshList = freshSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        localStorage.setItem("shree_products_cache", JSON.stringify(freshList));
+        return freshList;
       }
     } catch (e) {
-      // server check fallback
+      console.error("Firestore getProducts error:", e);
     }
 
     const cached = localStorage.getItem("shree_products_cache");
-    return cached ? JSON.parse(cached) : null;
+    return cached ? JSON.parse(cached) : initialProducts;
   },
-  // --- PRODUCTS ---
-async getProducts() {
-  try {
-    const productsSnap = await getDocs(collection(db, "products"));
-
-    const products = productsSnap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    localStorage.setItem(
-      "shree_products_cache",
-      JSON.stringify(products)
-    );
-
-    return products;
-  } catch (e) {
-    console.error("Firestore products error:", e);
-
-    const cached = localStorage.getItem("shree_products_cache");
-    return cached ? JSON.parse(cached) : [];
-  }
-},
-
-// --- GET CATEGORIES ---
-async getCategories() {
-  try {
-    const res = await fetch(`${API_BASE}/api/store/data`);
-
-    if (res.ok) {
-      const data = await res.json();
-
-      if (data.categories) {
-        localStorage.setItem(
-          "shree_categories_cache",
-          JSON.stringify(data.categories)
-        );
-
-        return data.categories;
-      }
-    }
-  } catch (e) {}
-
-  const cached = localStorage.getItem(
-    "shree_categories_cache"
-  );
-
-  return cached ? JSON.parse(cached) : [];
-},
-
-// --- GET VIDEO BANNER ---
-async getVideoBanner() {
-  try {
-    const res = await fetch(`${API_BASE}/api/store/data`);
-
-    if (res.ok) {
-      const data = await res.json();
-
-      if (data.videoBanner) {
-        localStorage.setItem(
-          "shree_video_banner_cache",
-          JSON.stringify(data.videoBanner)
-        );
-
-        return data.videoBanner;
-      }
-    }
-  } catch (e) {}
-
-  const cached = localStorage.getItem(
-    "shree_video_banner_cache"
-  );
-
-  return cached ? JSON.parse(cached) : {};
-},
-
-// --- GET SETTINGS ---
-async getSettings() {
-  try {
-    const res = await fetch(`${API_BASE}/api/store/data`);
-
-    if (res.ok) {
-      const data = await res.json();
-
-      if (data.settings) {
-        localStorage.setItem(
-          "shree_settings_cache",
-          JSON.stringify(data.settings)
-        );
-
-        return data.settings;
-      }
-    }
-  } catch (e) {}
-
-  const cached = localStorage.getItem(
-    "shree_settings_cache"
-  );
-
-  return cached ? JSON.parse(cached) : {};
-},
 
   async saveProduct(product) {
     const id = product.id || `prod_${Date.now()}`;
-    const productData = { ...product, id, updatedAt: new Date().toISOString() };
+    const productData = { 
+      ...product, 
+      id, 
+      updatedAt: new Date().toISOString() 
+    };
 
-    // 1. Save to Server Disk Database
-    try {
-      await fetch(`${API_BASE}/api/store/product`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData)
-      });
-    } catch (e) {
-      console.warn("Server disk product save error:", e);
-    }
-
-    // 2. Save to Local Cache
-    const current = JSON.parse(localStorage.getItem("shree_products_cache") || "[]");
-    const index = current.findIndex(p => p.id === id);
-    if (index >= 0) {
-      current[index] = productData;
-    } else {
-      current.unshift(productData);
-    }
-    localStorage.setItem("shree_products_cache", JSON.stringify(current));
-
-    // 3. Save to Firebase Firestore
+    // 1. Direct Firestore write
     try {
       await setDoc(doc(db, "products", id), productData, { merge: true });
     } catch (e) {
-      console.warn("Firestore product save skipped:", e);
+      console.error("Firestore saveProduct error:", e);
+    }
+
+    // 2. Update local fallback cache
+    try {
+      const current = JSON.parse(localStorage.getItem("shree_products_cache") || "[]");
+      const index = current.findIndex(p => p.id === id);
+      if (index >= 0) {
+        current[index] = productData;
+      } else {
+        current.unshift(productData);
+      }
+      localStorage.setItem("shree_products_cache", JSON.stringify(current));
+    } catch (e) {
+      // cache ignore
     }
 
     return productData;
   },
 
   async deleteProduct(id) {
-    // 1. Delete from Server Disk Database
-    try {
-      await fetch(`${API_BASE}/api/store/product/${id}`, {
-        method: 'DELETE'
-      });
-    } catch (e) {
-      console.warn("Server disk product delete error:", e);
-    }
-
-    // 2. Delete from Local Cache
-    const current = JSON.parse(localStorage.getItem("shree_products_cache") || "[]");
-    const filtered = current.filter(p => p.id !== id);
-    localStorage.setItem("shree_products_cache", JSON.stringify(filtered));
-
-    // 3. Delete from Firebase Firestore
+    // 1. Direct Firestore delete
     try {
       await deleteDoc(doc(db, "products", id));
     } catch (e) {
-      console.warn("Firestore product delete skipped:", e);
+      console.error("Firestore deleteProduct error:", e);
+    }
+
+    // 2. Update local fallback cache
+    try {
+      const current = JSON.parse(localStorage.getItem("shree_products_cache") || "[]");
+      const filtered = current.filter(p => p.id !== id);
+      localStorage.setItem("shree_products_cache", JSON.stringify(filtered));
+    } catch (e) {
+      // cache ignore
     }
 
     return true;
   },
 
-  // --- VIDEO BANNERS ---
+  // --- CATEGORIES ---
+  async getCategories() {
+    try {
+      const snap = await getDocs(collection(db, "categories"));
+      if (!snap.empty) {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        localStorage.setItem("shree_categories_cache", JSON.stringify(list));
+        return list;
+      }
+
+      await this.initializeDefaultsIfEmpty();
+      const freshSnap = await getDocs(collection(db, "categories"));
+      if (!freshSnap.empty) {
+        const freshList = freshSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        localStorage.setItem("shree_categories_cache", JSON.stringify(freshList));
+        return freshList;
+      }
+    } catch (e) {
+      console.error("Firestore getCategories error:", e);
+    }
+
+    const cached = localStorage.getItem("shree_categories_cache");
+    return cached ? JSON.parse(cached) : initialCategories;
+  },
+
+  async saveCategories(categoriesList) {
+    try {
+      for (const cat of categoriesList) {
+        await setDoc(doc(db, "categories", cat.id || `cat_${cat.slug}`), {
+          ...cat,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      }
+    } catch (e) {
+      console.error("Firestore saveCategories error:", e);
+    }
+
+    localStorage.setItem("shree_categories_cache", JSON.stringify(categoriesList));
+    return categoriesList;
+  },
+
+  async saveCategory(category) {
+    const id = category.id || `cat_${category.slug || Date.now()}`;
+    const data = { ...category, id, updatedAt: new Date().toISOString() };
+
+    try {
+      await setDoc(doc(db, "categories", id), data, { merge: true });
+    } catch (e) {
+      console.error("Firestore saveCategory error:", e);
+    }
+
+    try {
+      const current = JSON.parse(localStorage.getItem("shree_categories_cache") || "[]");
+      const idx = current.findIndex(c => c.id === id);
+      if (idx >= 0) current[idx] = data;
+      else current.push(data);
+      localStorage.setItem("shree_categories_cache", JSON.stringify(current));
+    } catch (e) {}
+
+    return data;
+  },
+
+  async deleteCategory(id) {
+    try {
+      await deleteDoc(doc(db, "categories", id));
+    } catch (e) {
+      console.error("Firestore deleteCategory error:", e);
+    }
+
+    try {
+      const current = JSON.parse(localStorage.getItem("shree_categories_cache") || "[]");
+      const filtered = current.filter(c => c.id !== id);
+      localStorage.setItem("shree_categories_cache", JSON.stringify(filtered));
+    } catch (e) {}
+
+    return true;
+  },
+
+  // --- VIDEO BANNER ---
+  async getVideoBanner() {
+    try {
+      const docSnap = await getDoc(doc(db, "video_banners", "hero_banner"));
+      if (docSnap.exists()) {
+        const banner = docSnap.data();
+        localStorage.setItem("shree_video_banner_cache", JSON.stringify(banner));
+        return banner;
+      }
+
+      await this.initializeDefaultsIfEmpty();
+      const freshDoc = await getDoc(doc(db, "video_banners", "hero_banner"));
+      if (freshDoc.exists()) {
+        const freshBanner = freshDoc.data();
+        localStorage.setItem("shree_video_banner_cache", JSON.stringify(freshBanner));
+        return freshBanner;
+      }
+    } catch (e) {
+      console.error("Firestore getVideoBanner error:", e);
+    }
+
+    const cached = localStorage.getItem("shree_video_banner_cache");
+    return cached ? JSON.parse(cached) : initialVideoBanner;
+  },
+
   async saveVideoBanner(bannerData) {
     const data = { ...bannerData, updatedAt: new Date().toISOString() };
 
-    // 1. Save to Server Disk Database
-    try {
-      await fetch(`${API_BASE}/api/store/video-banner`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-    } catch (e) {
-      console.warn("Server disk video banner save error:", e);
-    }
-
-    // 2. Local cache
-    localStorage.setItem("shree_video_banner_cache", JSON.stringify(data));
-
-    // 3. Firebase Firestore
     try {
       await setDoc(doc(db, "video_banners", "hero_banner"), data, { merge: true });
     } catch (e) {
-      console.warn("Firestore video banner save skipped:", e);
+      console.error("Firestore saveVideoBanner error:", e);
     }
 
+    localStorage.setItem("shree_video_banner_cache", JSON.stringify(data));
     return data;
   },
 
   // --- WEBSITE SETTINGS ---
+  async getSettings() {
+    try {
+      const docSnap = await getDoc(doc(db, "website_settings", "general_settings"));
+      if (docSnap.exists()) {
+        const settings = docSnap.data();
+        localStorage.setItem("shree_settings_cache", JSON.stringify(settings));
+        return settings;
+      }
+
+      await this.initializeDefaultsIfEmpty();
+      const freshDoc = await getDoc(doc(db, "website_settings", "general_settings"));
+      if (freshDoc.exists()) {
+        const freshSettings = freshDoc.data();
+        localStorage.setItem("shree_settings_cache", JSON.stringify(freshSettings));
+        return freshSettings;
+      }
+    } catch (e) {
+      console.error("Firestore getSettings error:", e);
+    }
+
+    const cached = localStorage.getItem("shree_settings_cache");
+    return cached ? JSON.parse(cached) : initialSettings;
+  },
+
   async saveSettings(settingsData) {
     const data = { ...settingsData, updatedAt: new Date().toISOString() };
 
-    // 1. Save to Server Disk Database
-    try {
-      await fetch(`${API_BASE}/api/store/settings`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-    } catch (e) {
-      console.warn("Server disk settings save error:", e);
-    }
-
-    // 2. Local cache
-    localStorage.setItem("shree_settings_cache", JSON.stringify(data));
-
-    // 3. Firebase Firestore
     try {
       await setDoc(doc(db, "website_settings", "general_settings"), data, { merge: true });
     } catch (e) {
-      console.warn("Firestore settings save skipped:", e);
+      console.error("Firestore saveSettings error:", e);
     }
 
+    localStorage.setItem("shree_settings_cache", JSON.stringify(data));
     return data;
   },
 
-  // --- CATEGORIES ---
-  async saveCategories(categoriesList) {
-    // 1. Save to Server Disk Database
+  // --- ACTIVITY LOGS ---
+  async getActivityLogs() {
     try {
-      await fetch(`${API_BASE}/api/store/categories`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(categoriesList)
-      });
+      const q = query(collection(db, "activity_logs"), orderBy("timestamp", "desc"), limit(100));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        localStorage.setItem("shree_activity_logs", JSON.stringify(logs));
+        return logs;
+      }
     } catch (e) {
-      console.warn("Server disk categories save error:", e);
+      console.warn("Firestore getActivityLogs error:", e);
     }
 
-    // 2. Local cache
-    localStorage.setItem("shree_categories_cache", JSON.stringify(categoriesList));
-
-    // 3. Firebase Firestore
-    try {
-      await setDoc(doc(db, "categories", "catalog"), { items: categoriesList, updatedAt: new Date().toISOString() });
-    } catch (e) {
-      console.warn("Firestore categories save skipped:", e);
-    }
-
-    return categoriesList;
+    const cached = localStorage.getItem("shree_activity_logs");
+    return cached ? JSON.parse(cached) : [];
   },
 
-  // --- ACTIVITY LOGS ---
   async logActivity(action, details = {}) {
     const logItem = {
-      id: `log_${Date.now()}`,
       action,
       details,
       timestamp: new Date().toISOString(),
       user: 'Super Admin'
     };
 
-    const current = JSON.parse(localStorage.getItem("shree_activity_logs") || "[]");
-    current.unshift(logItem);
-    const trimmed = current.slice(0, 100);
-    localStorage.setItem("shree_activity_logs", JSON.stringify(trimmed));
-    
     try {
-      await addDoc(collection(db, "activity_logs"), logItem);
+      const docRef = await addDoc(collection(db, "activity_logs"), logItem);
+      logItem.id = docRef.id;
     } catch (e) {
-      // safe
+      logItem.id = `log_${Date.now()}`;
     }
-    return logItem;
-  },
 
-  async getActivityLogs() {
-    const cached = localStorage.getItem("shree_activity_logs");
-    return cached ? JSON.parse(cached) : [];
+    try {
+      const current = JSON.parse(localStorage.getItem("shree_activity_logs") || "[]");
+      current.unshift(logItem);
+      localStorage.setItem("shree_activity_logs", JSON.stringify(current.slice(0, 100)));
+    } catch (e) {}
+
+    return logItem;
   }
 };

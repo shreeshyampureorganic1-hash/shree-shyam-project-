@@ -2,6 +2,7 @@ import React from 'react';
 import { useStore } from '../../context/StoreContext';
 import { ShieldCheck, Truck, RefreshCw, Award, Heart, Phone, Mail, MapPin, MessageCircle, ExternalLink } from 'lucide-react';
 import { generateWhatsAppGeneralContactUrl } from '../../utils/whatsapp';
+import defaultLogo from '../../assets/logo.jpg';
 
 export default function Footer() {
   const { settings, setSelectedCategory } = useStore();
@@ -11,6 +12,8 @@ export default function Footer() {
     const element = document.getElementById('products-section');
     if (element) element.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const logoSrc = settings?.logoUrl || defaultLogo;
 
   return (
     <footer id="contact" className="bg-forest-900 text-stone-300 border-t-2 border-gold-600/40 relative overflow-hidden">
@@ -61,10 +64,10 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <img
-                src={settings.logoUrl || '/logo.jpg'}
+                src={logoSrc}
                 alt="Shree Shyam Pure Organic"
-                className="w-14 h-14 rounded-full border-2 border-gold-500 object-cover bg-stone-900"
-                onError={(e) => { e.target.src = '/logo.jpg'; }}
+                className="w-14 h-14 rounded-full border-2 border-gold-500 object-cover bg-stone-950"
+                onError={(e) => { e.currentTarget.src = defaultLogo; }}
               />
               <div>
                 <h3 className="font-serif text-2xl font-bold text-ivory-50">Shree Shyam</h3>
@@ -93,128 +96,106 @@ export default function Footer() {
             <h4 className="font-serif text-lg font-bold text-gold-300 mb-4 border-b border-gold-900/40 pb-2">
               Organic Delicacies
             </h4>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2 text-sm">
               <li>
                 <button
                   onClick={() => navigateTo('pickles')}
-                  className="hover:text-gold-400 transition-colors text-left"
+                  className="hover:text-gold-300 transition-colors text-left"
                 >
-                  Traditional Pickles (अचार)
+                  Authentic Pickles (अचार)
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => navigateTo('morning-powders')}
-                  className="hover:text-gold-400 transition-colors text-left"
+                  className="hover:text-gold-300 transition-colors text-left"
                 >
-                  Pure Morning Powders & Churna
+                  Superfood Morning Powders
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => navigateTo('natural-soaps')}
-                  className="hover:text-gold-400 transition-colors text-left"
+                  className="hover:text-gold-300 transition-colors text-left"
                 >
-                  Cold-Processed Herbal Soaps
+                  Artisanal Botanical Soaps
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => navigateTo('ghee-oils')}
-                  className="hover:text-gold-400 transition-colors text-left"
+                  className="hover:text-gold-300 transition-colors text-left"
                 >
-                  A2 Vedic Bilona Ghee & Oils
+                  A2 Vedic Ghee & Cold Press Oils
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => navigateTo('handmade-wellness')}
-                  className="hover:text-gold-400 transition-colors text-left"
+                  className="hover:text-gold-300 transition-colors text-left"
                 >
-                  Handmade Wellness Essentials
+                  Handmade Ayurvedic Wellness
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Quality & Trust */}
+          {/* Quick Info & Policies */}
           <div>
             <h4 className="font-serif text-lg font-bold text-gold-300 mb-4 border-b border-gold-900/40 pb-2">
-              Quality & Trust
+              Purity Assurance
             </h4>
-            <ul className="space-y-2.5 text-sm">
-              <li className="flex items-center text-stone-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold-400 mr-2"></span>
-                100% Sun-Dried Heirloom Spices
-              </li>
-              <li className="flex items-center text-stone-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold-400 mr-2"></span>
-                Cold-Pressed Unrefined Oils Only
-              </li>
-              <li className="flex items-center text-stone-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold-400 mr-2"></span>
-                Zero Artificial Preservatives
-              </li>
-              <li className="flex items-center text-stone-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold-400 mr-2"></span>
-                Direct WhatsApp Order Support
-              </li>
-              <li className="flex items-center text-stone-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold-400 mr-2"></span>
-                Safe & Eco-Friendly Packaging
-              </li>
+            <ul className="space-y-2 text-sm text-stone-300">
+              <li>✓ 100% Cold Processed & Raw</li>
+              <li>✓ Direct Earthen Jar Aging</li>
+              <li>✓ Free Delivery Above ₹999</li>
+              <li>✓ Instant WhatsApp Order Desk</li>
+              <li>✓ Secure Cash on Delivery & UPI</li>
             </ul>
           </div>
 
-          {/* Contact Details & Google Maps Link */}
+          {/* Contact Details */}
           <div>
             <h4 className="font-serif text-lg font-bold text-gold-300 mb-4 border-b border-gold-900/40 pb-2">
-              Visit & Connect With Us
+              Connect With Us
             </h4>
             <div className="space-y-3 text-sm">
-              {/* Clickable Google Maps Location */}
-              <div className="flex items-start space-x-3">
+              <p className="flex items-start space-x-2.5">
                 <MapPin className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <a
-                    href={settings.mapsUrl || 'https://maps.app.goo.gl/REesz8dR2esjDu1X8'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-stone-300 hover:text-gold-300 font-medium underline decoration-gold-500/50 hover:decoration-gold-400 flex items-center group"
-                  >
-                    <span>{settings.address || 'Mirthal, Near Pathankot, Punjab, India'}</span>
-                    <ExternalLink className="w-3.5 h-3.5 ml-1 text-gold-400 opacity-70 group-hover:opacity-100" />
-                  </a>
-                  <span className="text-[11px] text-emerald-400 block mt-0.5">Click to Open Google Maps 📍</span>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-gold-400 flex-shrink-0" />
-                <a href={`tel:${settings.phone}`} className="text-stone-300 hover:text-gold-400">
-                  {settings.phone}
+                <a
+                  href={settings.mapsUrl || 'https://maps.app.goo.gl/REesz8dR2esjDu1X8'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-stone-300 hover:text-gold-300 transition-colors flex items-center group"
+                >
+                  <span>{settings.address || 'Mirthal, Near Pathankot, Punjab, India'}</span>
+                  <ExternalLink className="w-3.5 h-3.5 ml-1.5 opacity-70 group-hover:opacity-100" />
                 </a>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-gold-400 flex-shrink-0" />
-                <a href={`mailto:${settings.email}`} className="text-stone-300 hover:text-gold-400 truncate">
-                  {settings.email}
+              </p>
+              <p className="flex items-center space-x-2.5">
+                <Phone className="w-4 h-4 text-gold-400 flex-shrink-0" />
+                <a href={`tel:${settings.phone || '+919041103099'}`} className="hover:text-gold-300">
+                  {settings.phone || '+91 9041103099'}
                 </a>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MessageCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                <span className="text-stone-300">WhatsApp: {settings.whatsappNumber}</span>
-              </div>
+              </p>
+              <p className="flex items-center space-x-2.5">
+                <Mail className="w-4 h-4 text-gold-400 flex-shrink-0" />
+                <a href={`mailto:${settings.email || 'shreeshyampure.organic1@gmail.com'}`} className="hover:text-gold-300">
+                  {settings.email || 'shreeshyampure.organic1@gmail.com'}
+                </a>
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom copyright line */}
-        <div className="mt-12 pt-8 border-t border-forest-800 text-center text-xs text-stone-400 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} {settings.siteName}. All Rights Reserved. Pure Organic Lifestyle, Punjab, India.</p>
-          <p className="flex items-center">
-            Handcrafted with devotion <Heart className="w-3.5 h-3.5 text-red-500 mx-1 inline fill-current" /> for Natural Living
-          </p>
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-6 border-t border-forest-800 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-4">
+          <p>© {new Date().getFullYear()} Shree Shyam Pure Organic. All Rights Reserved.</p>
+          <div className="flex items-center space-x-4">
+            <a href="/secure-admin" className="hover:text-gold-400 text-stone-500 transition-colors">
+              Admin Portal
+            </a>
+          </div>
         </div>
       </div>
     </footer>

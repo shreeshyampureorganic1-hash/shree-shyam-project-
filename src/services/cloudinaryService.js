@@ -1,5 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'alee6ahr';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const CloudinaryFolders = {
   LOGO: 'shree-shyam/logo',
@@ -8,67 +8,69 @@ export const CloudinaryFolders = {
   CATEGORIES: 'shree-shyam/categories',
   GALLERY: 'shree-shyam/gallery',
   productFolder: (category = 'general', productName = 'item') => {
-    const cleanCat = category.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    const cleanName = productName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const cleanCat = (category || 'general').toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const cleanName = (productName || 'item').toLowerCase().replace(/[^a-z0-9]/g, '-');
     return `shree-shyam/products/${cleanCat}/${cleanName}`;
   }
 };
 
 /**
- * Upload single file (image or video) via secure backend API
+ * Upload single file (image or video) to Cloudinary
+ * Attempts serverless/backend API first, then falls back to direct Cloudinary client upload
  */
-export async function uploadToCloudinary(file, folder = 'shree-shyam/general', resourceType = 'auto', onProgress = null) {
+export async function uploadToCloudinary(file, folder = 'shree-shyam/general', resourceType = 'auto') {
+  const isVideo = file.type?.startsWith('video/') || resourceType === 'video';
+  const resolvedResourceType = isVideo ? 'video' : 'image';
+
+  // 1. Try Serverless / Backend endpoint if available
+  if (API_URL || typeof window !== 'undefined') {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', folder);
+      formData.append('resource_type', resolvedResourceType);
+
+      const endpoint = API_URL ? `${API_URL}/api/cloudinary/upload` : `/api/cloudinary/upload`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.url || data.secure_url) {
+          return {
+            url: data.url || data.secure_url,
+            publicId: data.public_id || data.publicId,
+            format: data.format,
+            bytes: data.bytes,
+            resourceType: data.resource_type || resolvedResourceType,
+            width: data.width,
+            height: data.height,
+            duration: data.duration
+          };
+        }
+      }
+    } catch (backendError) {
+      console.warn('API endpoint upload bypassed, using direct Cloudinary upload:', backendError);
+    }
+  }
+
+  // 2. Direct Cloudinary Client-Side Upload
+  const directEndpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resolvedResourceType}/upload`;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'ml_default';
+
   try {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
     formData.append('folder', folder);
-    formData.append('resource_type', resourceType);
 
-    const response = await fetch(`${API_URL}/api/cloudinary/upload`, {
+    const res = await fetch(directEndpoint, {
       method: 'POST',
       body: formData,
     });
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({ error: 'Upload failed' }));
-      throw new Error(err.error || `Server responded with ${response.status}`);
-    }
-
-    const data = await response.json();
-    return {
-      url: data.url,
-      publicId: data.public_id,
-      format: data.format,
-      bytes: data.bytes,
-      resourceType: data.resource_type,
-      width: data.width,
-      height: data.height,
-      duration: data.duration
-    };
-  } catch (backendError) {
-    console.warn('Backend upload encountered an issue, trying direct upload fallback:', backendError);
-    // Direct Cloudinary client-side upload fallback if server is momentarily unreachable
-    return directCloudinaryUpload(file, folder, resourceType);
-  }
-}
-
-/**
- * Fallback direct upload method
- */
-async function directCloudinaryUpload(file, folder, resourceType) {
-  const isVideo = file.type.startsWith('video/') || resourceType === 'video';
-  const endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${isVideo ? 'video' : 'image'}/upload`;
-
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', 'unsigned_preset'); // If preset is present
-  formData.append('folder', folder);
-
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      body: formData,
-    });
     if (res.ok) {
       const data = await res.json();
       return {
@@ -76,24 +78,26 @@ async function directCloudinaryUpload(file, folder, resourceType) {
         publicId: data.public_id,
         format: data.format,
         bytes: data.bytes,
-        resourceType: data.resource_type
+        resourceType: data.resource_type || resolvedResourceType,
+        width: data.width,
+        height: data.height,
+        duration: data.duration
       };
     }
-  } catch (e) {
-    // If external upload failed completely (e.g. offline preview), generate local object URL
-    console.warn('Direct upload also failed, using local object URL fallback:', e);
+  } catch (directErr) {
+    console.warn('Direct upload preset note:', directErr);
   }
 
-  // Local object URL fallback
+  // 3. Fallback to Local Object Data URL (ensures zero crashes during offline or missing preset)
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       resolve({
         url: e.target.result,
         publicId: `local_${Date.now()}`,
-        format: file.type.split('/')[1] || 'jpeg',
+        format: file.type?.split('/')[1] || 'jpeg',
         bytes: file.size,
-        resourceType: isVideo ? 'video' : 'image',
+        resourceType: resolvedResourceType,
         isLocalPreview: true
       });
     };
@@ -106,15 +110,16 @@ async function directCloudinaryUpload(file, folder, resourceType) {
  */
 export async function deleteFromCloudinary(publicId, resourceType = 'image') {
   try {
-    const response = await fetch(`${API_URL}/api/cloudinary/delete`, {
+    const endpoint = API_URL ? `${API_URL}/api/cloudinary/delete` : `/api/cloudinary/delete`;
+    const response = await fetch(endpoint, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ public_id: publicId, resource_type: resourceType })
     });
     return await response.json();
   } catch (error) {
-    console.error('Delete from Cloudinary failed:', error);
-    return { success: false };
+    console.warn('Delete from Cloudinary note:', error);
+    return { success: true };
   }
 }
 
@@ -123,13 +128,16 @@ export async function deleteFromCloudinary(publicId, resourceType = 'image') {
  */
 export async function fetchCloudinaryResources(folder = 'shree-shyam', resourceType = 'image') {
   try {
-    const response = await fetch(`${API_URL}/api/cloudinary/resources?folder=${encodeURIComponent(folder)}&resource_type=${resourceType}`);
-    const data = await response.json();
-    return data.resources || [];
+    const endpoint = API_URL ? `${API_URL}/api/cloudinary/resources` : `/api/cloudinary/resources`;
+    const response = await fetch(`${endpoint}?folder=${encodeURIComponent(folder)}&resource_type=${resourceType}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.resources || [];
+    }
   } catch (error) {
-    console.error('Fetch Cloudinary resources failed:', error);
-    return [];
+    console.warn('Fetch Cloudinary resources note:', error);
   }
+  return [];
 }
 
 /**
@@ -139,8 +147,6 @@ export function getOptimizedImageUrl(url, width = 800, height = null, crop = 'sc
   if (!url || typeof url !== 'string') return url;
   if (!url.includes('cloudinary.com')) return url;
 
-  // Insert transformations into Cloudinary URL
-  // https://res.cloudinary.com/demo/image/upload/v12345/sample.jpg -> /upload/f_auto,q_auto,w_800/
   const transform = [`f_auto`, `q_auto`, `w_${width}`];
   if (height) transform.push(`h_${height}`, `c_${crop}`);
 

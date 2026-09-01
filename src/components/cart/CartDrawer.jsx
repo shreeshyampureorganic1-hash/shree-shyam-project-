@@ -25,7 +25,7 @@ export default function CartDrawer() {
   // Generate WhatsApp message for entire cart
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
-    const whatsappNumber = (settings.whatsappNumber || '919876543210').replace(/[^0-9]/g, '');
+    const whatsappNumber = (settings.whatsappNumber || '919041103099').replace(/[^0-9]/g, '');
     const itemsList = cart
       .map(
         (item, idx) =>

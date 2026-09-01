@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowLeft, KeyRound } from 'lucide-react';
+import defaultLogo from '../assets/logo.jpg';
 
 export default function AdminLogin({ onLoginSuccess }) {
   const { login, lockCountdown, remainingAttempts } = useAuth();
@@ -38,12 +39,12 @@ export default function AdminLogin({ onLoginSuccess }) {
       <div className="w-full max-w-md bg-forest-900 border border-gold-500/40 rounded-3xl p-8 shadow-2xl relative z-10">
         {/* Header with Brand Emblem */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full border-2 border-gold-500/80 p-1 mx-auto mb-4 bg-stone-900 shadow-luxury-gold">
+          <div className="w-20 h-20 rounded-full border-2 border-gold-500 p-0.5 mx-auto mb-4 bg-stone-950 shadow-luxury-gold overflow-hidden flex items-center justify-center">
             <img
-              src="/logo.jpg"
-              alt="Logo"
-              className="w-full h-full object-contain rounded-full"
-              onError={(e) => { e.target.src = '/logo.jpg'; }}
+              src={defaultLogo}
+              alt="Shree Shyam Pure Organic"
+              className="w-full h-full object-cover rounded-full"
+              onError={(e) => { e.currentTarget.src = defaultLogo; }}
             />
           </div>
           <div className="inline-flex items-center space-x-1 text-gold-400 text-xs font-bold uppercase tracking-widest bg-forest-950 px-3 py-1 rounded-full border border-gold-900 mb-2">
