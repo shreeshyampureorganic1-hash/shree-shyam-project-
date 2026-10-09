@@ -78,15 +78,14 @@ export default function ProductCard({ product }) {
       {/* Product Content */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between bg-white">
         <div>
-          {/* Category & Weight */}
-          <div className="flex items-center justify-between text-xs text-stone-500 mb-1.5">
-            <span className="text-gold-700 font-bold uppercase tracking-wider text-[10px]">
-              {product.category}
-            </span>
-            <span className="bg-stone-100 px-2 py-0.5 rounded-md font-medium text-stone-600">
-              {product.weight}
-            </span>
-          </div>
+          {/* Weight */}
+          {product.weight && (
+            <div className="flex items-center justify-end text-xs text-stone-500 mb-1.5">
+              <span className="bg-stone-100 px-2 py-0.5 rounded-md font-medium text-stone-600">
+                {product.weight}
+              </span>
+            </div>
+          )}
 
           {/* Title */}
           <h3 className="font-serif font-bold text-stone-900 text-base line-clamp-2 group-hover:text-forest-700 transition-colors leading-snug">

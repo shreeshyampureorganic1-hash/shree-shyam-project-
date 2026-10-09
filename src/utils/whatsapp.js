@@ -12,7 +12,6 @@ export function generateWhatsAppOrderUrl(product, quantity = 1, selectedWeight =
   const message = `🌿 *NEW ORDER INQUIRY - SHREE SHYAM PURE ORGANIC* 🌿
 ----------------------------------------
 *Product:* ${product.name}
-*Category:* ${product.category || 'Organic'}
 *Selected Pack:* ${weight}
 *Quantity:* ${quantity}
 *Total Amount:* ₹${totalPrice}
